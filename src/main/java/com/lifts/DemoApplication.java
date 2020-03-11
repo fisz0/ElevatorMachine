@@ -22,14 +22,12 @@ public class DemoApplication {
                 Order order = RandomOrderGenerator.generateOrder();
                 if (OrdersQueue.queueSize() < 100)
                     OrdersQueue.adToQueue(order);
-               // Thread.sleep(50);
             }
         });
 
         while (true) {
             Optional<Order> orderOptional = OrdersQueue.getNextOrder();
             orderOptional.ifPresent(order -> {
-                //System.out.println("Assigning order to elevator: " + order);
                 DemoApplication.elevatorService.assignOrderToLift(order);
             });
         }

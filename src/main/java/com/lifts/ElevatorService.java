@@ -1,12 +1,9 @@
 package com.lifts;
 
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -46,7 +43,7 @@ public class ElevatorService implements LiftService {
         if (liftsInTheSameDirection.isEmpty())
             chosenLift = Optional.ofNullable(this.findFirstFreeLift(order.getFromLevel(), order.getToLevel()));
         else
-            chosenLift = this.findClosestLift(liftsInTheSameDirection, order.getFromLevel());
+            chosenLift = Optional.ofNullable(this.findClosestLift(order.getFromLevel(), liftsInTheSameDirection));
 
         return chosenLift;
     }
@@ -61,7 +58,19 @@ public class ElevatorService implements LiftService {
                 }).collect(Collectors.toList());
     }
 
-    private Optional<Lift> findClosestLift(Collection<Lift> lifts, Integer fromLevel) {
+    private Lift findFirstFreeLift(Integer fromLevel, Integer toLevel) {
+        List<Lift> freeLifts = this.lifts.stream().filter(currLift -> currLift.isFreeToTakeOrder()).collect(Collectors.toList());
+        if (freeLifts.isEmpty()) return null;
+        Lift lift = findClosestLift(fromLevel, lifts);
+        if (fromLevel < toLevel)
+            lift.changeDirection(Direction.UP);
+        else lift.changeDirection(Direction.DOWN);
+
+
+        return lift;
+    }
+
+    private Lift findClosestLift(Integer fromLevel, Collection<Lift> lifts) {
         Iterator<Lift> iterator = lifts.iterator();
         Lift lift = iterator.next();
         while (iterator.hasNext()) {
@@ -69,18 +78,6 @@ public class ElevatorService implements LiftService {
             if (Math.abs(currLift.getPresentPosition() - fromLevel) < Math.abs(lift.getPresentPosition() - fromLevel))
                 lift = currLift;
         }
-        return Optional.ofNullable(lift);
-    }
-
-    private Lift findFirstFreeLift(Integer fromLevel, Integer toLevel) {
-        Collection<Lift> freeLifts = this.lifts.stream().filter(currLift -> currLift.isFreeToTakeOrder()).collect(Collectors.toList());
-        if (freeLifts.isEmpty()) return null;
-        Lift lift = freeLifts.iterator().next();
-        if (fromLevel < toLevel)
-            lift.changeDirection(Direction.UP);
-        else lift.changeDirection(Direction.DOWN);
-
-
         return lift;
     }
 }

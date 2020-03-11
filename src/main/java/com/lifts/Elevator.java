@@ -41,7 +41,7 @@ public class Elevator implements Lift {
     private void goUp(Integer startingPoint) {
         while (currentLevel < startingPoint) this.goUpByOneFloor();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class Elevator implements Lift {
     private void goDown(Integer startingPoint) {
         while (currentLevel > startingPoint) this.goDownByOneFloor();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

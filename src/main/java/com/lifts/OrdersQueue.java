@@ -20,7 +20,6 @@ public final class OrdersQueue {
     }
 
     public static Integer queueSize() {
-        //System.out.println(("Q size is: " + queue.size()));
         return queue.size();
     }
 
