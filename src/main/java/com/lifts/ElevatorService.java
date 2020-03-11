@@ -32,11 +32,9 @@ public class ElevatorService implements LiftService {
     public void assignOrderToLift(Order order) {
         Optional<Lift> optionalLift = this.findBestMatchingLift(order);
         optionalLift.ifPresent(lift -> {
-            executor.submit(() -> {
-                lift.pickOrder(order.getFromLevel(), order.getToLevel());
-                System.out.println("Order: " + order + " assigned to elevator: " + lift);
-                lift.move();
-            });
+            lift.pickOrder(order.getFromLevel(), order.getToLevel());
+            System.out.println("Order: " + order + " assigned to elevator: " + lift);
+            lift.move();
         });
 
     }
@@ -46,7 +44,7 @@ public class ElevatorService implements LiftService {
         Collection<Lift> liftsInTheSameDirection = this.filterMatchingElevators(orderDirection, order.getFromLevel());
         Optional<Lift> chosenLift;
         if (liftsInTheSameDirection.isEmpty())
-            chosenLift = Optional.ofNullable(this.findFirstFreeLift(order.getFromLevel()));
+            chosenLift = Optional.ofNullable(this.findFirstFreeLift(order.getFromLevel(), order.getToLevel()));
         else
             chosenLift = this.findClosestLift(liftsInTheSameDirection, order.getFromLevel());
 
@@ -74,13 +72,15 @@ public class ElevatorService implements LiftService {
         return Optional.ofNullable(lift);
     }
 
-    private Lift findFirstFreeLift(Integer fromLevel) {
+    private Lift findFirstFreeLift(Integer fromLevel, Integer toLevel) {
         Collection<Lift> freeLifts = this.lifts.stream().filter(currLift -> currLift.isFreeToTakeOrder()).collect(Collectors.toList());
         if (freeLifts.isEmpty()) return null;
         Lift lift = freeLifts.iterator().next();
-        if (fromLevel > lift.getPresentPosition())
+        if (fromLevel < toLevel)
             lift.changeDirection(Direction.UP);
         else lift.changeDirection(Direction.DOWN);
+
+
         return lift;
     }
 }
